@@ -15,9 +15,9 @@ plugins {
 android {
     namespace = "com.geek.playplan"
     compileSdk = flutter.compileSdkVersion
-    
-    // ★ [Pla-Y 필승 전략] 경로 강제 지정
-    ndkPath = "C:\\ndk"
+
+    // [중요] 윈도우 전용 ndkPath("C:\\ndk")를 삭제했습니다.
+    // 깃허브 서버가 스스로 NDK를 찾도록 비워두는 것이 정답입니다.
     ndkVersion = "26.1.10909125"
 
     compileOptions {
@@ -31,10 +31,11 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+            // GitHub Secrets에서 넣어준 값을 key.properties를 통해 읽어옵니다.
+            keyAlias = keystoreProperties["keyAlias"] as String?
+            keyPassword = keystoreProperties["keyPassword"] as String?
+            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+            storePassword = keystoreProperties["storePassword"] as String?
         }
     }
 
@@ -44,28 +45,16 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
-        // 조각칼질 금지 (방어막)
-        ndk {
-            debugSymbolLevel = "FULL"
-        }
     }
 
     buildTypes {
         getByName("release") {
+            // 릴리즈 빌드 시 위에서 설정한 서명(signingConfigs)을 사용합니다.
             signingConfig = signingConfigs.getByName("release")
+            
+            // 난독화 및 최적화 설정 (필요 시 true로 변경 가능)
             isMinifyEnabled = false
             isShrinkResources = false
-            // 릴리즈 빌드 방어막
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
-        }
-    }
-    
-    packaging {
-        jniLibs {
-            keepDebugSymbols += "**/*.so"
         }
     }
 }
