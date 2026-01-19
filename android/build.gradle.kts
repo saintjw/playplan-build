@@ -5,7 +5,7 @@ allprojects {
     }
 }
 
-// 빌드 디렉토리 설정 (기본값 사용)
+// 빌드 디렉토리 설정 (프로젝트 구조에 맞게 기본값 유지)
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
 
